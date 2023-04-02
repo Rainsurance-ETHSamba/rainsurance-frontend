@@ -114,7 +114,7 @@ export default function MyCoverage() {
     let difference = history.filter(x => !currentState.includes(x));
     console.log(`difference:`);
     console.log(difference);
-    const newState = [...currentState, ...history];
+    const newState = history;
     localStorage.setItem(storageKey, JSON.stringify(newState));
 
     difference.forEach((event) => {

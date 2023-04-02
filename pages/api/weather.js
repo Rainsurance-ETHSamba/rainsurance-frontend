@@ -28,8 +28,8 @@ export default async function handler(req, res) {
     const enddate = query.enddate //timestamp
 
     // convert timestamp to date in format yyyy-mm-dd
-    const startdateFormatted = new Date(startdate * 1000).toISOString().slice(0, 10)
-    const enddateFormattted = new Date(enddate * 1000).toISOString().slice(0, 10)
+    const startdateFormatted = new Date(startdate).toISOString().slice(0, 10)
+    const enddateFormattted = new Date(enddate).toISOString().slice(0, 10)
     
     // find number of days between startdate and enddate
     const diffTime = Math.abs(enddate - startdate) ;

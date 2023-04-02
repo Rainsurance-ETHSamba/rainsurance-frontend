@@ -3,9 +3,15 @@ import { useEffect, useState } from "react";
 import { ERC20 } from "@taikai/dappkit";
 import { Web3Connection } from "@taikai/dappkit";
 import { useWeb3 } from "@/hooks/useWeb3";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import UsdcAbi from '../../utils/Usdc.json';
 import InsuranceAbi from '../../utils/RainInsurance.json';
+
+declare global {
+    interface Window{
+        ethereum: any
+    }
+  }
 
 interface FormModalProps {
     premium: number;
@@ -27,6 +33,7 @@ export default function FormModal({closeModal, modal, premium, coverage, duratio
                 footer={
                     <ModalButtons 
                         closeModal={closeModal}
+                        modal={modal}
                         premium={premium}
                         coverage={coverage}
                         duration={duration}
@@ -39,7 +46,7 @@ export default function FormModal({closeModal, modal, premium, coverage, duratio
                 isShowing={modal}
                 title="Calculated Premium"
             >
-                <p>Using the data from your trip details we've calculated the premium for your trip to be: </p>
+                <p>Using the data from your trip details we&apos;ve calculated the premium for your trip to be: </p>
                 {premium}
             </ModalDrawer>
       </div>
@@ -47,16 +54,16 @@ export default function FormModal({closeModal, modal, premium, coverage, duratio
 }
 
 function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dailyPrec }: FormModalProps) {
-    const [usdcContract, setUsdcContract] = useState();
-    const [insuranceContract, setInsuranceContract] = useState();
+    const [usdcContract, setUsdcContract] = useState<ethers.Contract>();
+    const [insuranceContract, setInsuranceContract] = useState<ethers.Contract>();
     const [approving, setIsApproving] = useState(false);
     const [applying, setApplying] = useState(false);
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState<BigNumber>(BigNumber.from(0));
             
     const handleApproveTransaction = async () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const tempUsdcContract = new ethers.Contract(
-                process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS,
+                process.env.NEXT_PUBLIC_USDC_CONTRACT_ADDRESS!,
                 UsdcAbi.abi,
                 provider.getSigner(),
         );
@@ -68,7 +75,7 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
     const getMyPolicy = () => {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const tempInsuranceContract = new ethers.Contract(
-                process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS,
+                process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS!,
                 InsuranceAbi.abi,
                 provider.getSigner(),
         );
@@ -100,7 +107,7 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
 
     useEffect(() => {
 
-        const onApproval = (owner, spender, value) => {
+        const onApproval = (owner: string, spender: string, value: BigNumber) => {
           console.log(`Approval event arrived, owner: ${owner}, spender: ${spender}, value: ${value}`);
           setValue(value);
           setIsApproving(false);

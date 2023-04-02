@@ -20,8 +20,6 @@ import CalculateButton from '@/components/form/CalculateButton';
 import { RAIN_DATA } from "../utils/rainData"
 import FormModal from '@/components/form/FormModal';
 
-import { chainDict } from "./constants/networks";
-import { dappConfig } from "./config";
 import ConnectWalletButton from '@/components/ConnectWalletButton';
 
 

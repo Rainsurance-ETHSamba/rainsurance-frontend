@@ -54,7 +54,7 @@ const ConnectWalletModal: React.FC<Props> = (props: Props) => {
             </Connector>
           </ConnectorList>
           <Agreement>
-            By connecting a wallet, you agree to the "Rainsurance" Terms of Service and
+            By connecting a wallet, you agree to the &quot;RAINsurance&quot; Terms of Service and
             consent to its Privacy Policy.
           </Agreement>
         </>

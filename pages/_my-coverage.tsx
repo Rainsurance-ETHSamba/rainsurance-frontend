@@ -1,4 +1,3 @@
-import '../styles/globals.css'
 import React from 'react';
 import {DappkitProviderCtx, defaulDappkitProvider} from '../context';
 import { Icon, HorizontalNav } from '@taikai/rocket-kit';

@@ -61,7 +61,7 @@ export default function MyCoverage() {
   const makeClaim = async (policyId: number) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const tempInsuranceContract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS,
+            process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS!,
             InsuranceAbi.abi,
             provider.getSigner(),
     );
@@ -70,6 +70,65 @@ export default function MyCoverage() {
     const data = await tempInsuranceContract.fireClaim(policyId)
     console.log("data: ", data)
   }
+
+  const snapNotify = async (message) => {
+    try {
+      await window.ethereum.request({
+        method: 'wallet_invokeSnap',
+        params: {
+          snapId: defaultSnapOrigin,
+          request: { method: 'notification', params: { message } },
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getEvents = async () => {
+    const eventFilter = insuranceContract.filters.ClaimProcessed(
+      null,
+      address,
+    );
+    const events = await insuranceContract.queryFilter(
+      eventFilter,
+      -1000,
+    );
+
+    events.sort((a, b) => a.blockNumber - b.blockNumber); // b - a for reverse sort
+
+    const history = [];
+    events.forEach((event) => {
+      history.push([
+        event.args[0],
+        event.args[1],
+        event.args[2],
+        event.args[3],
+      ]);
+    });
+    console.log(`history:`);
+    console.log(history);
+
+    const storageKey = "rainsurance";
+    const currentState = JSON.parse(localStorage.getItem(storageKey));
+    let difference = history.filter(x => !currentState.includes(x));
+    console.log(`difference:`);
+    console.log(difference);
+    const newState = [...currentState, ...history];
+    localStorage.setItem(storageKey, JSON.stringify(newState));
+
+    difference.forEach((event) => {
+      snapNotify(
+        `Claim id ${event[0]} was processed with result: ${event[3]}!`,
+      );
+    });
+  };
+
+  useEffect(() => {
+    if(insuranceContract) {
+      getEvents()
+    }
+  }, [insuranceContract])
 
   useEffect(() => {
     if(address) {

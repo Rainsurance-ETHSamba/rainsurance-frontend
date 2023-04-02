@@ -76,7 +76,7 @@ export default function MyCoverage() {
       await window.ethereum.request({
         method: 'wallet_invokeSnap',
         params: {
-          snapId: defaultSnapOrigin,
+          snapId: process.env.NEXT_PUBLIC_METAMASK_SNAP_ORIGIN,
           request: { method: 'notification', params: { message } },
         },
       });
@@ -99,12 +99,12 @@ export default function MyCoverage() {
 
     const history = [];
     events.forEach((event) => {
-      history.push([
-        event.args[0],
-        event.args[1],
-        event.args[2],
-        event.args[3],
-      ]);
+      history.push({
+        "policyId": event.args[0],
+        "policyHolder": event.args[1],
+        "insuredAmount": event.args[2],
+        "reason": event.args[3],
+      });
     });
     console.log(`history:`);
     console.log(history);

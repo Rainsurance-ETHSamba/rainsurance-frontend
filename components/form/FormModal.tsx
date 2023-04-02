@@ -43,7 +43,7 @@ export default function FormModal({closeModal, modal, premium, coverage, duratio
                 title={policyCreated ? "Policy Created" : "Calculated Premium" }
             >
                 {policyCreated ?
-                    <p>Your policy was created successfully! You can now view it under the my coverage tab.</p>
+                    <p>Your policy was created successfully! You can now view it under the Policies tab.</p>
                 :
                 <>  
                     <p>Using the data from your trip details we've calculated the premium for your trip to be: </p>
@@ -90,8 +90,8 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
         );
         setInsuranceContract(tempInsuranceContract)
 
-        const start = new Date(duration.arrival).getTime()
-        const end = new Date(duration.departure).getTime()
+        const start = new Date(duration.arrival * 1000).getTime() / 1000
+        const end = new Date(duration.departure * 1000).getTime() / 1000
 
         const premiumBigNumber = ethers.utils.parseUnits(premium.toString(), 6)
         const coverageBigNumber = ethers.utils.parseUnits(coverage.toString(), 6)

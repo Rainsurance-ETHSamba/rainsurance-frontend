@@ -58,7 +58,7 @@ export default function MyCoverage() {
     setPolicies(_policies)
   }
 
-  const makeClaim = async (i: number) => {
+  const makeClaim = async (policyId: number) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const tempInsuranceContract = new ethers.Contract(
             process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS,
@@ -67,7 +67,7 @@ export default function MyCoverage() {
     );
     setInsuranceContract(tempInsuranceContract)
 
-    const data = await tempInsuranceContract.fireClaim(i)
+    const data = await tempInsuranceContract.fireClaim(policyId)
     console.log("data: ", data)
   }
 
@@ -92,8 +92,8 @@ export default function MyCoverage() {
       </h1>
       {
         policies.map((policy, i) => {
-          const formattedStartDate = new Date(policy.startDate).toISOString().slice(0, 10)
-          const formattedEndDate = new Date(policy.endDate).toISOString().slice(0, 10)
+          const formattedStartDate = new Date(policy.startDate * 1000).toISOString().slice(0, 10)
+          const formattedEndDate = new Date(policy.endDate * 1000).toISOString().slice(0, 10)
           return (
             <div style={{display: "flex", border: "1px black solid", flexDirection: "column", padding: "5px", borderRadius: "3px"}} key={i}>
               <h2>

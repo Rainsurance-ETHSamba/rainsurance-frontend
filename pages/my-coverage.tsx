@@ -7,6 +7,7 @@ import NavBar from '@/components/NavBar';
 import { Button } from '@taikai/rocket-kit';
 import { ethers } from 'ethers';
 import InsuranceAbi from '../utils/RainInsurance.json';
+import useAddress from "../hooks/useAddress";
 
 const dummyData = [
   {
@@ -22,39 +23,39 @@ const dummyData = [
 export default function MyCoverage() {
   const [insuranceContract, setInsuranceContract] = useState();
   const [policies, setPolicies] = useState([]);
+  const { address = "" } = useAddress();
   // const policies = [];
 
   // need to call get policies twice to get policy 2 and 3
   const getPolicies = async () => {
+    console.log("getPolicies")
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const tempInsuranceContract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS,
+            process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS!,
             InsuranceAbi.abi,
             provider.getSigner(),
     );
     setInsuranceContract(tempInsuranceContract)
 
-    let data = await tempInsuranceContract.policies(3)
+    console.log("address: ", address)
 
-    const startDate = ethers.utils.formatUnits(data[0], 1)
-    const endDate = ethers.utils.formatUnits(data[1], 1)
-    const lat = data[2]
-    const long = data[3]
-    const precip = ethers.utils.formatUnits(data[4], 1)
-    const insuredAmount = ethers.utils.formatUnits(data[5], 6)
-    const premium = ethers.utils.formatUnits(data[6], 6)
+    let data = await tempInsuranceContract.getAllPolicies(address)
 
-    const policy = {
-      startDate: startDate,
-      endDate: endDate, 
-      lat: lat, 
-      long: long, 
-      precip: precip, 
-      insuredAmount: insuredAmount, 
-      premium: premium
-    }
-
-    setPolicies(policies.concat(policy))
+    console.log("getAllPolicies");
+    const _policies = [];
+    data.forEach((_policy) => {
+      const startDate = parseInt(_policy[0])
+      const endDate = parseInt(_policy[1])
+      const lat = _policy[2]
+      const long = _policy[3]
+      const precip = parseInt(_policy[4])
+      const insuredAmount = ethers.utils.formatUnits(_policy[5], 6)
+      const premium = ethers.utils.formatUnits(_policy[6], 6)
+      const policyId = parseInt(_policy[7])
+      _policies.push({startDate, endDate, lat, long, precip, insuredAmount, premium, policyId})
+    });
+    console.log(_policies);
+    setPolicies(_policies)
   }
 
   const makeClaim = async (i: number) => {
@@ -71,8 +72,10 @@ export default function MyCoverage() {
   }
 
   useEffect(() => {
-    getPolicies()
-  }, [])
+    if(address) {
+      getPolicies()
+    }
+  }, [address])
 
 
   return (
@@ -89,15 +92,18 @@ export default function MyCoverage() {
       </h1>
       {
         policies.map((policy, i) => {
-          const dateOptions = { month: '2-digit', day: '2-digit', year: 'numeric' };
-          console.log(policy)
-          const formattedStartDate = new Date(Math.ceil(policy.startDate)).toLocaleDateString('en-US', dateOptions);
-          const formattedEndDate = new Date(Math.ceil(policy.endDate)).toLocaleDateString('en-US', dateOptions);
+          const formattedStartDate = new Date(policy.startDate).toISOString().slice(0, 10)
+          const formattedEndDate = new Date(policy.endDate).toISOString().slice(0, 10)
           return (
             <div style={{display: "flex", border: "1px black solid", flexDirection: "column", padding: "5px", borderRadius: "3px"}} key={i}>
-              <h2>Coverage: ${policy.insuredAmount}</h2>
-              <h3>Premium: ${policy.premium}</h3>
-              <h3>{formattedStartDate} - {formattedEndDate}</h3>
+              <h2>
+                Coverage: ${policy.insuredAmount}<br/>
+                Premium: ${policy.premium}
+              </h2>
+              <h3>
+                Start: {formattedStartDate}<br/>
+                End: {formattedEndDate}
+              </h3>
               <div style={{width: "100%", display: "flex", justifyContent: "center"}}>
                 <Button
                   ariaLabel="Make A Claim"
@@ -106,7 +112,7 @@ export default function MyCoverage() {
                   txtColor="white"
                   value="Make A Claim"
                   variant="solid"
-                  action={() => makeClaim(3)}
+                  action={() => makeClaim(policy.policyId)}
                 />
               </div>
             </div>

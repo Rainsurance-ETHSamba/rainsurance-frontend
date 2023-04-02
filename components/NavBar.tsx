@@ -22,8 +22,8 @@ export default function NavBar() {
 
     <HorizontalNav
       items={[
-        <li key="0"><a href="/">Apply For Protection</a></li>,
-        <li key="1"><a href="/my-coverage">My Coverage</a></li>,
+        <li key="0"><Link key="0" href="/">Apply For Protection</Link></li>,
+        <li key="1"><Link key="1" href="/my-coverage">My Policies</Link></li>,
         <li key="2"><ConnectWalletButton /></li>,
       ]}
     />

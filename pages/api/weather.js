@@ -27,8 +27,8 @@ export default async function handler(req, res) {
     const enddate = query.enddate //timestamp
 
     // convert timestamp to date in format yyyy-mm-dd
-    const startdateFormatted = new Date(startdate * 1000).toISOString().slice(0, 10)
-    const enddateFormattted = new Date(enddate * 1000).toISOString().slice(0, 10)
+    const startdateFormatted = new Date(startdate).toISOString().slice(0, 10)
+    const enddateFormattted = new Date(enddate).toISOString().slice(0, 10)
     const precipitation = query.precipitation
 
     // find number of days between startdate and enddate
@@ -36,6 +36,7 @@ export default async function handler(req, res) {
     const days = Math.ceil(diffTime / (60 * 60 * 24));
 
     const requestUrl = `https://my.meteoblue.com/packages/historybasic-1h?lat=${lat}&lon=${long}&startdate=${startdateFormatted}&enddate=${enddateFormattted}&format=json&apikey=${process.env.NEXT_PUBLIC_METEOBLUE_API_KEY}`
+        
     const response = await fetch(requestUrl)
     const data = await response.json()
 

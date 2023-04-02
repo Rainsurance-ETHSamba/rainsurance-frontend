@@ -21,7 +21,7 @@ export default function CalculateButton({ getPremiumArgs, calculatePremium }: Bu
             txtColor="white"
             value="Calculate Premium"
             variant="solid"
-            style={{marginTop: "5%"}}
+            style={{marginTop: "3%"}}
         />
     )
 }

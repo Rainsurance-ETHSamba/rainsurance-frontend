@@ -84,15 +84,17 @@ export default function Form() {
     }
     
     return(
-      <div style={{display: "flex", alignItems: "center", flexDirection: "column"}}>
+      <div style={{display: "flex", width: "100%", flexDirection: "column", alignItems: "center", marginTop: "5%"}}>
+        <div style={{display: "flex", alignItems: "center", columnGap: "20px"}}>
         {/* <ConnectWalletButton /> */}
         <Destination 
           setDestination={setDestination} 
           setLat={setLat}
           setLong={setLong}
         />
-        <Duration dispatchDuration={dispatchDuration} />
-        <Coverage setCoverage={setCoverage}/>
+          <Duration dispatchDuration={dispatchDuration} />
+          <Coverage setCoverage={setCoverage}/>
+        </div>
         <CalculateButton
           getPremiumArgs={getPremiumArgs}
           calculatePremium={() => calculatePremium({destination, duration, coverage})}

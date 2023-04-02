@@ -23,6 +23,7 @@ const dummyData = [
 export default function MyCoverage() {
   const [insuranceContract, setInsuranceContract] = useState();
   const [policies, setPolicies] = useState([]);
+  const [disabledClaims, setDisabledClaims] = useState([]);
   const { address = "" } = useAddress();
   // const policies = [];
 
@@ -58,7 +59,7 @@ export default function MyCoverage() {
     setPolicies(_policies)
   }
 
-  const makeClaim = async (policyId: number) => {
+  const makeClaim = async (policyId: number, i: number) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const tempInsuranceContract = new ethers.Contract(
             process.env.NEXT_PUBLIC_INSURANCE_CONTRACT_ADDRESS!,
@@ -68,7 +69,8 @@ export default function MyCoverage() {
     setInsuranceContract(tempInsuranceContract)
 
     const data = await tempInsuranceContract.fireClaim(policyId)
-    console.log("data: ", data)
+    // console.log("data: ", data)
+    setDisabledClaims([...disabledClaims, i])
   }
 
   const snapNotify = async (message) => {
@@ -112,8 +114,6 @@ export default function MyCoverage() {
     const storageKey = "rainsurance";
     const currentState = JSON.parse(localStorage.getItem(storageKey));
     let difference = history.filter(x => !currentState.includes(x));
-    console.log(`difference:`);
-    console.log(difference);
     const newState = history;
     localStorage.setItem(storageKey, JSON.stringify(newState));
 
@@ -149,6 +149,7 @@ export default function MyCoverage() {
       <h1>
         My Policies:
       </h1>
+      <div style={{display: "flex", columnGap: "10px"}}>
       {
         policies.map((policy, i) => {
           const formattedStartDate = new Date(policy.startDate * 1000).toISOString().slice(0, 10)
@@ -171,13 +172,15 @@ export default function MyCoverage() {
                   txtColor="white"
                   value="Make A Claim"
                   variant="solid"
-                  action={() => makeClaim(policy.policyId)}
+                  action={() => makeClaim(policy.policyId, i)}
+                  disabled={disabledClaims.findIndex((claimIndex: number) => claimIndex === i) !== -1}
                 />
               </div>
             </div>
           )
         })
       }
+      </div>
     </div>
     
   );

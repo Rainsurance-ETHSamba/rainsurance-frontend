@@ -14,11 +14,12 @@ interface FormModalProps {
     lat: string;
     long: string;
     dailyPrec: number;
-    modal: boolean;
+    modal?: boolean;
     closeModal: () => void;
 }
 
 export default function FormModal({closeModal, modal, premium, coverage, duration, lat, long, dailyPrec}: FormModalProps) {
+    const [policyCreated, setPolicyCreated] = useState(false);
 
     return(
         <div>
@@ -33,24 +34,39 @@ export default function FormModal({closeModal, modal, premium, coverage, duratio
                         lat={lat}
                         long={long}
                         dailyPrec={dailyPrec}
+                        setPolicyCreated={setPolicyCreated}
+                        policyCreated={policyCreated}
                     />
                 }
                 hide={closeModal}
                 isShowing={modal}
-                title="Calculated Premium"
+                title={policyCreated ? "Policy Created" : "Calculated Premium" }
             >
-                <p>Using the data from your trip details we've calculated the premium for your trip to be: </p>
-                {premium}
+                {policyCreated ?
+                    <p>Your policy was created successfully! You can now view it under the my coverage tab.</p>
+                :
+                <>  
+                    <p>Using the data from your trip details we've calculated the premium for your trip to be: </p>
+                    ${premium}
+                </>
+                }
+                
             </ModalDrawer>
       </div>
     )
 }
 
-function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dailyPrec }: FormModalProps) {
+interface ModalButtonsProps {
+    policyCreated: boolean;
+    setPolicyCreated: (policy: boolean) => void
+}
+
+function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dailyPrec, policyCreated, setPolicyCreated}: FormModalProps & ModalButtonsProps) {
     const [usdcContract, setUsdcContract] = useState();
     const [insuranceContract, setInsuranceContract] = useState();
     const [approving, setIsApproving] = useState(false);
     const [applying, setApplying] = useState(false);
+    const [isCreated, setIsCreated] = useState(false);
     const [value, setValue] = useState(0);
             
     const handleApproveTransaction = async () => {
@@ -82,25 +98,17 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
         const premiumBigNumber = ethers.utils.parseUnits(premium.toString(), 6)
         const coverageBigNumber = ethers.utils.parseUnits(coverage.toString(), 6)
         const parameters = [start, end, lat, long, dailyPrec, coverageBigNumber, premiumBigNumber]
-        console.log("parameters: ", parameters)
         tempInsuranceContract.applyForPolicy(parameters)
         setApplying(true)
-
-
-        // struct Policy {
-        //     uint256 startDate;
-        //     uint256 endDate;
-        //     string lat;
-        //     string long;
-        //     uint256 precipitation;
-        //     uint256 insuredAmount;
-        //     uint256 premiumAmount;
-        // }
-
-        // ["16803446049","16803618849","-22.970357","-43.183659","10","200","10"]
     }
 
     useEffect(() => {
+
+        const onPolicyCreated = (policyId, policyHolder, premiumAmount, insuredAmount) => {
+            console.log(`Policy created event arrived, policyId: ${policyId}, policyHolder: ${policyHolder}`);
+            setApplying(false);
+            setPolicyCreated(true);
+        };
 
         const onApproval = (owner, spender, value) => {
           console.log(`Approval event arrived, owner: ${owner}, spender: ${spender}, value: ${value}`);
@@ -111,13 +119,19 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
         if (usdcContract) {
             usdcContract.on('Approval', onApproval);
         }
-    
+        if (insuranceContract) {
+            insuranceContract.on('PolicyCreated', onPolicyCreated);
+        }
+
         return () => {
           if (usdcContract) {
             usdcContract.off('Approval', onApproval);
           }
+          if (insuranceContract) {
+            insuranceContract.off('PolicyCreated', onPolicyCreated);
+          }
         }
-    }, [usdcContract])
+    }, [usdcContract, insuranceContract])
     
 
     return(
@@ -125,9 +139,10 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
             {value ? 
                 <Button 
                     type="submit" 
-                    value={"Get My Policy" }
+                    value={applying ? "Generating Policy..." : "Get My Policy" }
+                    disabled={policyCreated}
                     action={getMyPolicy}
-                />
+                /> 
                 :
                 <Button 
                     type="submit" 
@@ -135,8 +150,6 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
                     action={handleApproveTransaction}
                 />
             }
-            
-            
         </ModalFooter>
     )
 }

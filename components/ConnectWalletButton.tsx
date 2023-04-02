@@ -17,7 +17,7 @@ export default function ConnectWalletButton() {
     }
 
     return(
-        <div style={{display: "flex", width: "100%", justifyContent: "flex-end", margin: "10px 10px 0 0"}}>
+        <div style={{display: "flex", width: "100%", justifyContent: "flex-end"}}>
             <Button action={openMetaMaskModal} type="submit" value={!connected ? "Connect Wallet" : "Disconnect"}/>
             <ConnectWalletModal
                 onClose={closeMetaMaskModal}

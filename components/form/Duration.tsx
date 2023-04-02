@@ -9,6 +9,7 @@ export default function Duration({ dispatchDuration }: DurationProps) {
 
     const handleArrival = (e: ChangeEvent<HTMLInputElement>, type: string) => {
         dispatchDuration({ type: type, nextArrival: e.target.value})
+        console.log("value: ",  e.target.value)
     }
 
     const handleDeparture = (e: ChangeEvent<HTMLInputElement>, type: string) => {

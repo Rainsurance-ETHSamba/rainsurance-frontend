@@ -74,8 +74,10 @@ function ModalButtons({ closeModal, premium, duration, coverage, lat, long, dail
         );
         setInsuranceContract(tempInsuranceContract)
 
-        const start = new Date(duration.arrival).getTime()
-        const end = new Date(duration.departure).getTime()
+        const tempStart = new Date(duration.arrival).getTime()
+        const start = ethers.utils.parseUnits(tempStart.toString(), 1)
+        const tempEnd = new Date(duration.departure).getTime()
+        const end= ethers.utils.parseUnits(tempEnd.toString(), 1)
 
         const premiumBigNumber = ethers.utils.parseUnits(premium.toString(), 6)
         const coverageBigNumber = ethers.utils.parseUnits(coverage.toString(), 6)

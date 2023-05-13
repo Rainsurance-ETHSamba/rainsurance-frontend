@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     const precipitationArray = historyArray["precipitation"]
     const precipitationSum = precipitationArray.reduce((a, b) => a + b, 0)
     const precipitationAvg = precipitationSum / days
-    const precipitationAvgRounded = Math.ceil(precipitationAvg
+    const precipitationAvgRounded = Math.ceil(precipitationAvg)
     console.log(`precipitationAvg: ${precipitationAvg}`)
     console.log(`precipitationAvgRounded: ${precipitationAvgRounded}`)
 

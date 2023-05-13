@@ -23,7 +23,6 @@ export default async function handler(req, res) {
 
     const lat = query.lat
     const long = query.long
-    const precipitation = query.precipitation
     const startdate = query.startdate //timestamp
     const enddate = query.enddate //timestamp
 
@@ -44,7 +43,9 @@ export default async function handler(req, res) {
     const precipitationArray = historyArray["precipitation"]
     const precipitationSum = precipitationArray.reduce((a, b) => a + b, 0)
     const precipitationAvg = precipitationSum / days
+    const precipitationAvgRounded = Math.ceil(precipitationAvg
     console.log(`precipitationAvg: ${precipitationAvg}`)
+    console.log(`precipitationAvgRounded: ${precipitationAvgRounded}`)
 
-    res.status(200).json({result: precipitationAvg > precipitation, error: false})
+    res.status(200).json({result: precipitationAvgRounded, error: false})
 }

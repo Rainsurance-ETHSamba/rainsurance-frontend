@@ -38,6 +38,8 @@ export default async function handler(req, res) {
 
     const requestUrl = `https://my.meteoblue.com/packages/historybasic-1h?lat=${lat}&lon=${long}&startdate=${startdateFormatted}&enddate=${enddateFormattted}&format=json&apikey=${process.env.NEXT_PUBLIC_METEOBLUE_API_KEY}`
   
+    console.log(`requestUrl: ${requestUrl}`)
+    
     const response = await fetch(requestUrl)
     const data = await response.json()
 

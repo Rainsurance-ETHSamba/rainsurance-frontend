@@ -21,9 +21,8 @@ export default async function handler(req, res) {
     await runMiddleware(req, res, cors);
     const { query } = req;
 
-    const lat = query.lat
-    const long = query.long
-    const precipitation = query.precipitation
+    const lat = query.lat / 1e6
+    const long = query.long / 1e6
     const startdate = query.startdate //timestamp
     const enddate = query.enddate //timestamp
     
